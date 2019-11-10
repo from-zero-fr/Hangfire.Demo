@@ -18,13 +18,14 @@ namespace Hangfire.Demo.Job
 
         public void Execute(DateTime datetime, PerformContext context)
         {
-            LogManager.Configuration.Variables["jobid"] = context.BackgroundJob.Id;
-
-            logger.Info($"Creation time:{datetime.ToString()}");
-            for (int i = 0; i <= 100; i += 5)
+            using (NLog.NestedDiagnosticsContext.Push(context.BackgroundJob.Id))
             {
-                logger.Info($"Background job progress: {i}");
-                Thread.Sleep(100);
+                logger.Info($"Creation time:{datetime.ToString()}");
+                for (int i = 0; i <= 100; i += 5)
+                {
+                    logger.Info($"Background job progress: {i}");
+                    Thread.Sleep(100);
+                }
             }
         }
     }

@@ -27,14 +27,14 @@ namespace Hangfire.Demo.Client.Controllers
             logger.Info("Start setting up delayed jobs, execute after 1 minute");
 
             // Create a delayed job
-            var jobId = BackgroundJob.Schedule<IDemoJob>(t => t.Execute(DateTime.Now), TimeSpan.FromMinutes(1));
+            var jobId = BackgroundJob.Schedule<IDemoJob>(t => t.Execute(DateTime.Now, null), TimeSpan.FromMinutes(1));
 
             // Find if a periodic job exists, and if it does not exist, create a job
             var list = JobStorage.Current.GetConnection().GetAllEntriesFromHash("recurring-job:Client_Recurring");
             if (list == null)
             {
                 logger.Warn("job not found, create 1 minute periodic job");
-                Hangfire.RecurringJob.AddOrUpdate<IDemoJob>("Client_Recurring", t => t.Execute(DateTime.Now), Hangfire.Cron.Minutely, TimeZoneInfo.Local);
+                Hangfire.RecurringJob.AddOrUpdate<IDemoJob>("Client_Recurring", t => t.Execute(DateTime.Now, null), Hangfire.Cron.Minutely, TimeZoneInfo.Local);
             }
             else
             {

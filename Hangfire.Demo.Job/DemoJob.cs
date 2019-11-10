@@ -1,24 +1,31 @@
-﻿using NLog;
+﻿using Hangfire.Server;
+using NLog;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace Hangfire.Demo.Job
 {
+    public interface IDemoJob
+    {
+        void Execute(DateTime datetime, PerformContext context);
+    }
+
     public class DemoJob : IDemoJob
     {
         private static Logger logger;
 
-        public DemoJob()
-        {
-            logger = LogManager.GetCurrentClassLogger();
-        }
+        public DemoJob() => logger = LogManager.GetCurrentClassLogger();
 
-        public void Execute(DateTime datetime)
+        public void Execute(DateTime datetime, PerformContext context)
         {
-            logger.Warn($"Creation time:{datetime.ToString()}");
+            LogManager.Configuration.Variables["jobid"] = context.BackgroundJob.Id;
+
+            logger.Info($"Creation time:{datetime.ToString()}");
+            for (int i = 0; i <= 100; i += 5)
+            {
+                logger.Info($"Background job progress: {i}");
+                Thread.Sleep(100);
+            }
         }
     }
 }
